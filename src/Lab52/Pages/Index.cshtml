@@ -4,11 +4,55 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <form method="post">
+@if (Model.ResultScores != null)
+{
+    <div class="space-y-4">
+        <div>@Model.ResultScores.Name</div>
+        <div>Su calificación es @Model.ResultScores.Score</div>
+    </div>
+}
+else
+{
+
+    <form method="post" class="space-y-4" autocomplete="off">
         <div>
-            <label>Nombre</label>
-            <input type="text" id="nombre" name="nombre"/>
+            @Html.ValidationSummary()
         </div>
+        <div class="flex gap-2">
+            <label>Nombre</label>
+            <input type="text" id="name" name="name" asp-for="InputAnswers.Name"/>
+        </div>
+        @if (Model.Questions != null)
+        {
+            foreach (var (question, questionIndex) in Model.Questions.Select((value, i) => (value, i)))
+            {
+                <div class="flex gap-2">
+                    <label>@question.Question</label>
+                    @if (question.Type == QuestionType.Combo)
+                    {
+                        <select id="answers[@questionIndex]" name="answers[@questionIndex]" asp-for="InputAnswers.Answers[@questionIndex]" autocomplete="off">
+                            @foreach (var (answer, answerIndex) in question.Answers.Select((value, i) => (value, i)))
+                            {
+                                <option value="@answerIndex">@answer.Answer</option>
+                            }
+                        </select>
+                    }
+                    else if (question.Type == QuestionType.Radio)
+                    {
+                        <div class="flex gap-2">
+                            @foreach (var (answer, answerIndex) in question.Answers.Select((value, i) => (value, i)))
+                            {
+                                <div class="flex">
+                                    <input type="radio" id="answers[@questionIndex]" name="answers[@questionIndex]" value="@answerIndex" asp-for="InputAnswers.Answers[@questionIndex]" autocomplete="off"/>
+                                    <label>@answer.Answer</label>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+        <button type="submit">Enviar</button>
     </form>
-</div>
+}
